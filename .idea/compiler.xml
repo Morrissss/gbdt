@@ -27,8 +27,8 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">
-      <module name="java" target="1.8" />
-      <module name="scala" target="1.8" />
+      <module name="java" target="1.5" />
+      <module name="scala" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -4,7 +4,8 @@ import java.util.List;
 
 public interface Loss {
 
-    double instanceLoss(double estimate, double groundTruth);
-    double batchLoss(List<Double> estimates, List<Double> groundTruths);
-    double optimalEstimate(Iterable<Double> groundTruths);
+    double instanceLoss(double estimate, int groundTruth);
+    double batchLoss(List<Double> estimates, List<Integer> groundTruths);
+    List<Double> negativeGradient(List<Double> estimates, List<Integer> groundTruths);
+    double optimalEstimate(Iterable<Integer> groundTruths);
 }
