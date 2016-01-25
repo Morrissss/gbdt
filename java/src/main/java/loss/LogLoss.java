@@ -7,6 +7,12 @@ import java.util.List;
 
 public class LogLoss extends AbstractLoss {
 
+    public static LogLoss getInstance() {
+        return INSTANCE;
+    }
+
+    private static final LogLoss INSTANCE = new LogLoss();
+
     @Override
     public double instanceLoss(double estimate, int groundTruth) {
         double prediction = MathUtils.sigmoid(estimate);

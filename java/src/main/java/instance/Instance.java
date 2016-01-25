@@ -2,8 +2,9 @@ package instance;
 
 public class Instance {
 
-    public FeatureIndex index;
-    public double[] x;
+    public final FeatureIndex index;
+    public final double[] x;
+    public final double y;
 
     public double estimate;
 

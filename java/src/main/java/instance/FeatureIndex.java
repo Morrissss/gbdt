@@ -23,4 +23,8 @@ public class FeatureIndex {
     public String[] getFeatureNames() {
         return featureNames;
     }
+
+    public int size() {
+        return featureNames.length;
+    }
 }

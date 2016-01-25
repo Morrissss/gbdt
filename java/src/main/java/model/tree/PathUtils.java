@@ -3,7 +3,7 @@ package model.tree;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Path {
+public class PathUtils {
 
     public static int init() {
         return 1;
@@ -43,5 +43,9 @@ public class Path {
         }
         sb.delete(result.size()-3, result.size());
         return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(printPath(10));
     }
 }

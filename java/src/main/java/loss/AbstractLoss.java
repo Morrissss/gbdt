@@ -4,6 +4,10 @@ import java.util.List;
 
 public abstract class AbstractLoss implements Loss {
 
+    protected AbstractLoss() {
+        // empty
+    }
+
     @Override
     public double batchLoss(List<Double> estimates, List<Integer> groundTruths) {
         assert estimates.size() == groundTruths.size();

@@ -5,6 +5,12 @@ import java.util.List;
 
 public class ExponentialLoss extends AbstractLoss {
 
+    public static ExponentialLoss getInstance() {
+        return INSTANCE;
+    }
+
+    private static final ExponentialLoss INSTANCE = new ExponentialLoss();
+
     @Override
     public double instanceLoss(double estimate, int groundTruth) {
         return Math.exp(-estimate * (1 - 2*groundTruth));
