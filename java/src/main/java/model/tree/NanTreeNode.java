@@ -3,11 +3,19 @@ package model.tree;
 import instance.Instance;
 import utils.Pair;
 
+import java.util.List;
+
 public class NanTreeNode implements TreeNode {
+
+    public NanTreeNode(List<Instance> trainSet) {
+        this.includedInstances = trainSet;
+    }
 
     public String featureKey;
     public double estimate;
     public TreeNode nan, normal;
+
+    public List<Instance> includedInstances;
 
     @Override
     public boolean isLeaf() {
@@ -21,9 +29,9 @@ public class NanTreeNode implements TreeNode {
         if (isLeaf()) {
             return Pair.of(son, currPath);
         } else if (!Double.isNaN(feature)) {
-            return Pair.of(normal, Path.toNormal(currPath));
+            return Pair.of(normal, PathUtils.toNormal(currPath));
         } else {
-            return Pair.of(nan, Path.toNan(currPath));
+            return Pair.of(nan, PathUtils.toNan(currPath));
         }
     }
 }

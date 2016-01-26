@@ -5,6 +5,12 @@ import java.util.List;
 
 public class SquaredLoss extends AbstractLoss {
 
+    public static SquaredLoss getInstance() {
+        return INSTANCE;
+    }
+
+    private static final SquaredLoss INSTANCE = new SquaredLoss();
+
     @Override
     public double instanceLoss(double estimate, int groundTruth) {
         double diff = estimate - groundTruth;
