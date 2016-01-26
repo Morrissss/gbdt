@@ -1,4 +1,4 @@
-package impurity;
+package criterion;
 
 import java.util.List;
 
