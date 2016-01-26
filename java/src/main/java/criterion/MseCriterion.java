@@ -1,16 +1,19 @@
 package criterion;
 
-import java.util.List;
-
-public class MseCriterion extends AbstractRegressionCriterion {
+public class MseCriterion extends AbstractSortedCriterion {
 
     @Override
-    public double calc(List<Double> values) {
-        double m = mean(values);
-        double se = 0;
-        for (double value : values) {
-            se += (value-m) * (value-m);
-        }
-        return se / values.size();
+    protected double initLoss() {
+        return 0;
+    }
+
+    @Override
+    protected void updateOthers(int beg, int end) {
+
+    }
+
+    @Override
+    protected double calcLoss(int beg, int end) {
+        return 0;
     }
 }

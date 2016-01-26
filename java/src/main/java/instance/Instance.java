@@ -4,8 +4,9 @@ public class Instance {
 
     public final FeatureIndex index;
     public final double[] x;
-    public final double y;
+    public final int label; // 0, 1
 
+    public double y;
     public double estimate;
 
     public double getFeature(int idx) {
