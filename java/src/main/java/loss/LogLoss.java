@@ -14,30 +14,28 @@ public class LogLoss extends AbstractLoss {
     private static final LogLoss INSTANCE = new LogLoss();
 
     @Override
-    public double instanceLoss(double estimate, int groundTruth) {
+    public double instanceLoss(double estimate, int label) {
         double prediction = MathUtils.sigmoid(estimate);
-        return - groundTruth * Math.log(prediction) - (1 - groundTruth) * Math.log(1 - prediction);
+        return - label * Math.log(prediction) - (1 - label) * Math.log(1 - prediction);
     }
 
     @Override
-    public List<Double> negativeGradient(List<Double> estimates, List<Integer> groundTruths) {
+    public List<Double> negativeGradient(List<Double> estimates, List<Integer> labels) {
         List<Double> result = new ArrayList<>(estimates.size());
         for (int i = 0; i < estimates.size(); i++) {
-            double gt = groundTruths.get(i);
-            double y = estimates.get(i);
-            result.add((gt-y) / (y - y * y));
+            result.add(labels.get(i) - MathUtils.sigmoid(estimates.get(i)));
         }
         return result;
     }
 
     @Override
-    public double optimalEstimate(Iterable<Integer> groundTruths) {
-        double sum = 0;
-        long num = 0;
-        for (int groundTruth : groundTruths) {
-            sum += groundTruth;
+    public double optimalEstimate(Iterable<Integer> labels) {
+        int sum = 0;
+        int num = 0;
+        for (int label : labels) {
+            sum += label;
             num++;
         }
-        return MathUtils.inverseSigmoid(1 - sum / num);
+        return MathUtils.inverseSigmoid(sum * 1.0 / num);
     }
 }

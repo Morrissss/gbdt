@@ -12,24 +12,24 @@ public class SquaredLoss extends AbstractLoss {
     private static final SquaredLoss INSTANCE = new SquaredLoss();
 
     @Override
-    public double instanceLoss(double estimate, int groundTruth) {
-        double diff = estimate - groundTruth;
+    public double instanceLoss(double estimate, int label) {
+        double diff = estimate - label;
         return .5 * diff * diff;
     }
 
     @Override
-    public List<Double> negativeGradient(List<Double> estimates, List<Integer> groundTruths) {
+    public List<Double> negativeGradient(List<Double> estimates, List<Integer> labels) {
         List<Double> result = new ArrayList<>(estimates.size());
         for (int i = 0; i < estimates.size(); i++) {
-            result.add(groundTruths.get(i) - estimates.get(i));
+            result.add(labels.get(i) - estimates.get(i));
         }
         return result;
     }
 
     @Override
-    public double optimalEstimate(Iterable<Integer> groundTruths) {
+    public double optimalEstimate(Iterable<Integer> labels) {
         double result = 0;
-        for (double val : groundTruths) {
+        for (double val : labels) {
             result += val;
         }
         return result;

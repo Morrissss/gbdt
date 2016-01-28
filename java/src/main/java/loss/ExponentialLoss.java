@@ -12,33 +12,34 @@ public class ExponentialLoss extends AbstractLoss {
     private static final ExponentialLoss INSTANCE = new ExponentialLoss();
 
     @Override
-    public double instanceLoss(double estimate, int groundTruth) {
-        return Math.exp(-estimate * (1 - 2*groundTruth));
+    public double instanceLoss(double estimate, int label) {
+        return Math.exp(estimate * (1 - 2 * label));
     }
 
     @Override
-    public List<Double> negativeGradient(List<Double> estimates, List<Integer> groundTruths) {
+    public List<Double> negativeGradient(List<Double> estimates, List<Integer> labels) {
         List<Double> result = new ArrayList<>(estimates.size());
         for (int i = 0; i < estimates.size(); i++) {
-            result.add(Math.exp((1-2*groundTruths.get(i)) * estimates.get(i)));
+            int t = 1 - 2 * labels.get(i);
+            result.add(t * Math.exp(t * estimates.get(i)));
         }
         return result;
     }
 
     /**
-     * @param groundTruths suppose only contains 0 and 1
+     * @param labels suppose only contains 0 and 1
      */
     @Override
-    public double optimalEstimate(Iterable<Integer> groundTruths) {
-        double posNum = 0;
-        double negNum = 0;
-        for (double y : groundTruths) {
+    public double optimalEstimate(Iterable<Integer> labels) {
+        int posNum = 0;
+        int negNum = 0;
+        for (int y : labels) {
             if (y == 1) {
                 posNum++;
             } else {
                 negNum++;
             }
         }
-        return Math.log(posNum / negNum) / 2;
+        return Math.log(posNum * 1.0 / negNum) / 2;
     }
 }

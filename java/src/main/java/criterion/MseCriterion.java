@@ -1,6 +1,6 @@
 package criterion;
 
-public class MseCriterion extends AbstractSortedCriterion {
+public class MseCriterion extends AbstractAdditiveCriterion {
 
     @Override
     protected double initLoss() {
@@ -9,11 +9,7 @@ public class MseCriterion extends AbstractSortedCriterion {
 
     @Override
     protected void updateOthers(int beg, int end) {
-
-    }
-
-    @Override
-    protected double calcLoss(int beg, int end) {
-        return 0;
+        leftLoss = leftSquaredSum / leftNum - (leftSum / leftNum) * (leftSum / leftNum);
+        rightLoss = rightSquaredSum / rightNum - (rightSum / rightNum) * (rightSum / rightNum);
     }
 }
