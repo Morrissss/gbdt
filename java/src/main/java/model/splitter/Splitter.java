@@ -1,15 +1,12 @@
 package model.splitter;
 
-import instance.Instance;
 import model.tree.TreeNode;
-import utils.Pair;
-
-import java.util.List;
 
 public interface Splitter {
 
     /**
-     * @return (threshold, loss)
+     * @param node will be modified
+     * @return split or not
      */
-    Pair<TreeNode, TreeNode> split(List<Instance> instances);
+    boolean split(TreeNode node);
 }

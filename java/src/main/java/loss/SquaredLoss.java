@@ -1,8 +1,5 @@
 package loss;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SquaredLoss extends AbstractLoss {
 
     public static SquaredLoss getInstance() {
@@ -18,12 +15,8 @@ public class SquaredLoss extends AbstractLoss {
     }
 
     @Override
-    public List<Double> negativeGradient(List<Double> estimates, List<Integer> labels) {
-        List<Double> result = new ArrayList<>(estimates.size());
-        for (int i = 0; i < estimates.size(); i++) {
-            result.add(labels.get(i) - estimates.get(i));
-        }
-        return result;
+    public double instanceNegGradient(double estimate, int label) {
+        return label - estimate;
     }
 
     @Override

@@ -2,9 +2,6 @@ package loss;
 
 import utils.MathUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class LogLoss extends AbstractLoss {
 
     public static LogLoss getInstance() {
@@ -20,12 +17,8 @@ public class LogLoss extends AbstractLoss {
     }
 
     @Override
-    public List<Double> negativeGradient(List<Double> estimates, List<Integer> labels) {
-        List<Double> result = new ArrayList<>(estimates.size());
-        for (int i = 0; i < estimates.size(); i++) {
-            result.add(labels.get(i) - MathUtils.sigmoid(estimates.get(i)));
-        }
-        return result;
+    public double instanceNegGradient(double estimate, int label) {
+        return label - MathUtils.sigmoid(estimate);
     }
 
     @Override

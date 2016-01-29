@@ -4,13 +4,12 @@ import instance.Instance;
 import loss.ExponentialLoss;
 import loss.Loss;
 import model.splitter.Splitter;
-import model.tree.NormalTreeNode;
 import model.tree.TreeNode;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Gbdt {
+public class Gbdt implements Model {
 
     private final int maxDepth;
     private final int treeNum;
@@ -29,7 +28,9 @@ public class Gbdt {
     public void train(List<Instance> dataset) {
         trees = new ArrayList<>(treeNum);
         for (int n = 0; n < treeNum; n++) {
-
+            for (Instance instance : dataset) {
+                instance.y = loss.instanceNegGradient(instance.estimate, instance.label);
+            }
         }
     }
 

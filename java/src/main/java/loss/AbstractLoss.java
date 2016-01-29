@@ -17,4 +17,5 @@ public abstract class AbstractLoss implements Loss {
         }
         return result;
     }
+
 }

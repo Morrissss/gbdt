@@ -10,34 +10,24 @@ public class PathUtils {
     }
 
     public static int toLeft(int cur) {
-        return (cur << 2) + 0;
+        return (cur << 1) + 0;
     }
 
     public static int toRight(int cur) {
-        return (cur << 2) + 1;
-    }
-
-    public static int toNan(int cur) {
-        return (cur << 2) + 2;
-    }
-
-    public static int toNormal(int cur) {
-        return (cur << 2) + 3;
+        return (cur << 1) + 1;
     }
 
     public static String printPath(int path) {
         List<String> result = new ArrayList<String>();
         while (path != 0) {
-            switch (path & 3) {
-                case 0: result.add("left"); break;
-                case 1: result.add("right"); break;
-                case 2: result.add("NaN"); break;
-                case 3: result.add("normal"); break;
+            switch (path & 1) {
+                case 0: result.add("l"); break;
+                case 1: result.add("r"); break;
             }
-            path >>>= 2;
+            path >>>= 1;
         }
         // default 1 on the head
-        StringBuilder sb = new StringBuilder(8 * result.size());
+        StringBuilder sb = new StringBuilder(4 * result.size());
         for (int i = result.size()-1; i >= 1; i--) {
             sb.append(result.get(i)).append("==>");
         }

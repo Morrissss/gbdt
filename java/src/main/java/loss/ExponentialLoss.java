@@ -1,8 +1,5 @@
 package loss;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ExponentialLoss extends AbstractLoss {
 
     public static ExponentialLoss getInstance() {
@@ -17,13 +14,9 @@ public class ExponentialLoss extends AbstractLoss {
     }
 
     @Override
-    public List<Double> negativeGradient(List<Double> estimates, List<Integer> labels) {
-        List<Double> result = new ArrayList<>(estimates.size());
-        for (int i = 0; i < estimates.size(); i++) {
-            int t = 1 - 2 * labels.get(i);
-            result.add(t * Math.exp(t * estimates.get(i)));
-        }
-        return result;
+    public double instanceNegGradient(double estimate, int label) {
+        int t = 1 - 2 * label;
+        return t * Math.exp(t * estimate);
     }
 
     /**

@@ -1,12 +1,16 @@
 package model.splitter;
 
-import impurity.SplitCriterion;
+import criterion.SplitCriterion;
+import instance.FeatureIndex;
 
-public abstract class AbstractSplitter<T> implements Splitter {
+public abstract class AbstractSplitter implements Splitter {
 
-    protected final SplitCriterion<T> criterion;
-
-    protected AbstractSplitter(SplitCriterion<T> criterion) {
+    protected final FeatureIndex featureIndex;
+    protected final SplitCriterion criterion;
+    protected final int minNum;
+    protected AbstractSplitter(FeatureIndex featureIndex, SplitCriterion criterion, int minNum) {
+        this.featureIndex = featureIndex;
         this.criterion = criterion;
+        this.minNum = minNum;
     }
 }

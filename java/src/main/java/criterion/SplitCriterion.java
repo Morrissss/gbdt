@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface SplitCriterion {
 
-    void reset(List<Instance> samples);
+    double reset(List<Instance> samples);
 
     /**
      * move first num samples from right to left
