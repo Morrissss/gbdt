@@ -1,19 +1,22 @@
 package instance;
 
+import java.util.Arrays;
+
 public class Instance {
 
-    public final FeatureIndex index;
     public final double[] x;
     public final int label; // 0, 1
 
-    public double y;
-    public double estimate;
-
-    public double getFeature(int idx) {
-        return x[idx];
+    public Instance(double[] x, int label) {
+        this.x = x;
+        this.label = label;
     }
 
-    public double getFeature(String featureKey) {
-        return getFeature(index.idx(featureKey));
+    public double target;
+    public double estimate;
+
+    @Override
+    public String toString() {
+        return "{" + label + ": " + Arrays.toString(x) + " with " + estimate + "=>" + target + "}";
     }
 }

@@ -1,9 +1,9 @@
-package model.splitter;
+package splitter;
 
 import criterion.SplitCriterion;
 import instance.FeatureIndex;
 import instance.Instance;
-import model.tree.TreeNode;
+import model.tree.GbdtNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,27 +12,27 @@ import java.util.List;
 
 public class SortSplitter extends AbstractSplitter {
 
-    private final List<Comparator<Instance>> featureComparators;
-
-    public SortSplitter(FeatureIndex featureIndex, SplitCriterion criterion, int minNum) {
-        super(featureIndex, criterion, minNum);
+    public SortSplitter(GbdtNode node, SplitCriterion criterion, FeatureIndex featureIndex, int minNum) {
+        super(node, criterion, featureIndex, minNum);
         featureComparators = new ArrayList<>(featureIndex.size());
         for (int i = 0; i < featureIndex.size(); i++) {
             final int idx = i;
-            featureComparators.add(((o1, o2) -> Double.compare(o1.getFeature(idx), o2.getFeature(idx))));
+            featureComparators.add(((o1, o2) -> Double.compare(o1.x[idx], o2.x[idx])));
         }
     }
 
+    private List<Comparator<Instance>> featureComparators;
 
     @Override
-    public boolean split(TreeNode node) {
+    public boolean split() {
         List<Instance> instances = node.includedInstances;
         int bestSplitFeatureIdx = -1;
         int bestSplitInstanceIdx = -1;
-        double greatestImprovement = -1;
-        double lastLoss = criterion.reset(instances);
+        double greatestImprovement = 0;
         for (int i = 0; i < featureIndex.size(); i++) {
+            // thread-safe
             Collections.sort(instances, featureComparators.get(i));
+            double lastLoss = criterion.reset(instances);
             int firstRightIdx = 0;
             while (criterion.moveLeft(1)) {
                 firstRightIdx++;
@@ -52,11 +52,12 @@ public class SortSplitter extends AbstractSplitter {
         }
 
         Collections.sort(instances, featureComparators.get(bestSplitFeatureIdx));
-        node.featureKey = featureIndex.getFeatureNames()[bestSplitFeatureIdx];
-        node.threshold = instances.get(bestSplitInstanceIdx).getFeature(node.featureKey);
+        node.featureIdx = bestSplitFeatureIdx;
+        node.featureKey = featureIndex.name(bestSplitFeatureIdx);
+        node.threshold = instances.get(bestSplitInstanceIdx-1).x[featureIndex.idx(node.featureKey)];
 
-        node.lessEqual = new TreeNode(instances.subList(0, bestSplitInstanceIdx));
-        node.greater = new TreeNode(instances.subList(bestSplitInstanceIdx, instances.size()));
+        node.lessEqual = new GbdtNode(instances.subList(0, bestSplitInstanceIdx));
+        node.greater = new GbdtNode(instances.subList(bestSplitInstanceIdx, instances.size()));
 
         return true;
     }

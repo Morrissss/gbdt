@@ -6,6 +6,10 @@ import java.util.List;
 
 public abstract class AbstractAdditiveCriterion implements SplitCriterion {
 
+    protected AbstractAdditiveCriterion() {
+        // empty
+    }
+
     protected List<Instance> samples;
     protected int rightBeg;
 
@@ -32,10 +36,10 @@ public abstract class AbstractAdditiveCriterion implements SplitCriterion {
         rightSquaredSum = 0;
         for (Instance sample : samples) {
             rightNum++;
-            rightSum = sample.y;
-            rightSquaredSum = sample.y * sample.y;
+            rightSum += sample.target;
+            rightSquaredSum += sample.target * sample.target;
         }
-        updateLoss(0, 0);
+        updateLoss(-1, -1);
         return loss();
     }
 
@@ -48,7 +52,7 @@ public abstract class AbstractAdditiveCriterion implements SplitCriterion {
         for (int i = rightBeg; i < batchEnd; i++) {
             leftNum++;
             rightNum--;
-            double y = samples.get(i).y;
+            double y = samples.get(i).target;
             leftSum += y;
             rightSum -= y;
             leftSquaredSum += y * y;

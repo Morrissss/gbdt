@@ -6,8 +6,8 @@ public class Pair<U, V> {
         return new Pair(first, second);
     }
 
-    private final U first;
-    private final V second;
+    public final U first;
+    public final V second;
 
     private Pair(U first, V second) {
         this.first = first;

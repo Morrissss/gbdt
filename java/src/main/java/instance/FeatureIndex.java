@@ -19,9 +19,12 @@ public class FeatureIndex {
     public int idx(String feature) {
         return featureIdx.get(feature);
     }
+    public String name(int idx) {
+        return featureNames[idx];
+    }
 
-    public String[] getFeatureNames() {
-        return featureNames;
+    public double featureValue(Instance instance, String name) {
+        return instance.x[idx(name)];
     }
 
     public int size() {

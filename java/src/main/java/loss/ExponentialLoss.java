@@ -1,12 +1,34 @@
 package loss;
 
+import instance.Instance;
+import utils.MathUtils;
+
+import java.util.List;
+
 public class ExponentialLoss extends AbstractLoss {
 
-    public static ExponentialLoss getInstance() {
+    public static Loss getInstance() {
         return INSTANCE;
     }
 
-    private static final ExponentialLoss INSTANCE = new ExponentialLoss();
+    private static final Loss INSTANCE = new ExponentialLoss();
+    protected ExponentialLoss() {
+        super();
+    }
+
+    @Override
+    public double initEstimate(List<Instance> samples) {
+        int posNum = 0;
+        int negNum = 0;
+        for (Instance sample : samples) {
+            if (sample.label == 0) {
+                negNum++;
+            } else {
+                posNum++;
+            }
+        }
+        return 0.5 * Math.log(posNum * 1.0 / negNum);
+    }
 
     @Override
     public double instanceLoss(double estimate, int label) {
@@ -20,19 +42,25 @@ public class ExponentialLoss extends AbstractLoss {
     }
 
     /**
-     * @param labels suppose only contains 0 and 1
+     * @param samples suppose label only contains 0 and 1
      */
     @Override
-    public double optimalEstimate(Iterable<Integer> labels) {
-        int posNum = 0;
-        int negNum = 0;
-        for (int y : labels) {
-            if (y == 1) {
-                posNum++;
-            } else {
-                negNum++;
-            }
+    public double optimalEstimate(List<Instance> samples) {
+        double numerator = 0;
+        double denominator = 0;
+        for (Instance sample : samples) {
+            int t = 2 * sample.label - 1;
+            numerator += t * Math.exp(-t * sample.estimate);
+            denominator += Math.exp(-t * sample.estimate);
         }
-        return Math.log(posNum * 1.0 / negNum) / 2;
+        if (denominator == 0) {
+            return 0;
+        }
+        return numerator / denominator;
+    }
+
+    @Override
+    public double estimateToProb(double estimate) {
+        return MathUtils.sigmoid(2 * estimate);
     }
 }
