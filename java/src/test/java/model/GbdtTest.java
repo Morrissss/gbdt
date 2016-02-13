@@ -13,12 +13,12 @@ public class GbdtTest {
     @Test
     public void testFit() throws Exception {
         Pair<FeatureIndex, List<Instance>> p =
-                new CsvReader("/home/morris/Github/gbdt/test", ",").read();
+                new CsvReader("/home/morris/iris.csv", ",").read();
         FeatureIndex featureIndex = p.first;
         List<Instance> samples = p.second;
 
-        GbdtClassifier model = new GbdtClassifier(new GbdtParams.GbdtParamsBuilder(featureIndex).setTreeNum(5)
-                                                                                                .setDepth(3)
+        GbdtClassifier model = new GbdtClassifier(new GbdtParams.GbdtParamsBuilder(featureIndex).setTreeNum(2)
+                                                                                                .setDepth(2)
                                                                                                 .setLeafMinNum(1));
         model.fit(samples);
         for (Instance sample : samples) {

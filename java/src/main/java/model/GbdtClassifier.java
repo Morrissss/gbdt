@@ -23,7 +23,7 @@ public class GbdtClassifier implements Model {
         forest = new ArrayList<>(params.treeNum);
         for (int n = 0; n < params.treeNum; n++) {
             calcSampleTargets(samples);
-            System.out.println(samples);
+//            System.out.println(samples);
             GbdtTree tree = new GbdtTree(params);
             tree.fit(samples);
             calcSampleEstimates(samples, tree);

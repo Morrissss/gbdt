@@ -64,13 +64,13 @@ public class GbdtTree implements Model {
         @Override
         public void run() {
             if (depth+1 <= params.maxDepth && split(node)) {
-                System.out.println("depth " + depth + " split: " + node);
+//                System.out.println("depth " + depth + " split: " + node);
                 threadNum.addAndGet(1);
                 executor.submit(new ThreadTrainer(executor, node.greater, depth+1, threadNum));
                 threadNum.addAndGet(1);
                 executor.submit(new ThreadTrainer(executor, node.lessEqual, depth+1, threadNum));
             } else {
-                System.out.println("depth " + depth + " terminated: " + node);
+//                System.out.println("depth " + depth + " terminated: " + node);
                 node.estimate = params.loss.optimalEstimate(node.includedInstances);
                 for (Instance sample : node.includedInstances) {
                     sample.estimate += params.learningRate * node.estimate;
