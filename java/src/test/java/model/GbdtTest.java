@@ -3,7 +3,10 @@ package model;
 import instance.CsvReader;
 import instance.FeatureIndex;
 import instance.Instance;
+import loss.LossFactory;
+import model.GbdtParams.GbdtParamsBuilder;
 import org.junit.Test;
+import utils.MathUtils;
 import utils.Pair;
 
 import java.util.List;
@@ -13,16 +16,16 @@ public class GbdtTest {
     @Test
     public void testFit() throws Exception {
         Pair<FeatureIndex, List<Instance>> p =
-                new CsvReader("/home/morris/iris.csv", ",").read();
+                new CsvReader("/home/morris/github/gbdt/test.csv", ",").read();
         FeatureIndex featureIndex = p.first;
         List<Instance> samples = p.second;
 
-        GbdtClassifier model = new GbdtClassifier(new GbdtParams.GbdtParamsBuilder(featureIndex).setTreeNum(2)
-                                                                                                .setDepth(2)
-                                                                                                .setLeafMinNum(1));
+        GbdtClassifier model = new GbdtClassifier(new GbdtParamsBuilder(featureIndex).setTreeNum(20)
+                                                                                     .setDepth(3)
+                                                                                     .setLeafMinNum(5)
+                                                                                     .setLearningRate(0.2));
         model.fit(samples);
-        for (Instance sample : samples) {
-            System.out.println(sample + " " + model.predict(sample));
-        }
+
+        System.out.println(MathUtils.auc(samples, LossFactory.getInstance().fetch("log")));
     }
 }

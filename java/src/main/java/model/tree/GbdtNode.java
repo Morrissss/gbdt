@@ -14,7 +14,7 @@ public class GbdtNode {
     public int featureIdx;
     public String featureKey;
     public double threshold;
-    public double estimate;
+    public double value;
     public GbdtNode lessEqual, greater;
 
     public List<Instance> includedInstances;
@@ -40,13 +40,15 @@ public class GbdtNode {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("GbdtNode{");
-        sb.append("featureIdx=").append(featureIdx);
-        sb.append(", featureKey=").append(featureKey);
-        sb.append(", threshold=").append(threshold);
-        sb.append(", estimate=").append(estimate);
-        sb.append(", lessEqual=").append(lessEqual);
-        sb.append(", greater=").append(greater);
-//        sb.append(", includedInstances=").append(includedInstances);
+        sb.append("size=").append(includedInstances.size());
+        if (!isLeaf()) {
+            sb.append(", featureKey=").append(featureKey);
+            sb.append(", threshold=").append(threshold);
+            sb.append(", lessEqual=").append(lessEqual);
+            sb.append(", greater=").append(greater);
+        } else {
+            sb.append(", value=").append(value);
+        }
         sb.append('}');
         return sb.toString();
     }

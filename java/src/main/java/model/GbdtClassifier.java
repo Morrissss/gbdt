@@ -56,7 +56,7 @@ public class GbdtClassifier implements Model {
 
     private void calcSampleEstimates(List<Instance> samples, GbdtTree tree) {
         for (Instance sample : samples) {
-            sample.estimate = params.learningRate * tree.predict(sample);
+            sample.estimate += params.learningRate * tree.predict(sample);
         }
     }
 }

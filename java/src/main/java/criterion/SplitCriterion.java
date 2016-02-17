@@ -16,8 +16,13 @@ public interface SplitCriterion {
     boolean moveLeft(int num);
 
     /**
-     * @return total loss
+     * current pos
      */
-    double loss();
+    int rightBegIdx();
+
+    /**
+     * @return total impurity
+     */
+    double impurity();
 
 }

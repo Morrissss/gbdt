@@ -19,8 +19,8 @@ public abstract class AbstractAdditiveCriterion implements SplitCriterion {
     protected double rightSum;
     protected double leftSquaredSum;
     protected double rightSquaredSum;
-    protected double leftLoss;
-    protected double rightLoss;
+    protected double leftImpurity;
+    protected double rightImpurity;
 
     @Override
     public double reset(List<Instance> samples) {
@@ -34,13 +34,20 @@ public abstract class AbstractAdditiveCriterion implements SplitCriterion {
         rightNum = 0;
         rightSum = 0;
         rightSquaredSum = 0;
+
         for (Instance sample : samples) {
             rightNum++;
-            rightSum += sample.target;
-            rightSquaredSum += sample.target * sample.target;
+            double t = sample.target;
+            rightSum += t;
+            rightSquaredSum += t * t;
         }
-        updateLoss(-1, -1);
-        return loss();
+        updateImpurity(-1, -1);
+        return impurity();
+    }
+
+    @Override
+    public int rightBegIdx() {
+        return rightBeg;
     }
 
     @Override
@@ -52,21 +59,21 @@ public abstract class AbstractAdditiveCriterion implements SplitCriterion {
         for (int i = rightBeg; i < batchEnd; i++) {
             leftNum++;
             rightNum--;
-            double y = samples.get(i).target;
-            leftSum += y;
-            rightSum -= y;
-            leftSquaredSum += y * y;
-            rightSquaredSum -= y * y;
+            double t = samples.get(i).target;
+            leftSum += t;
+            rightSum -= t;
+            leftSquaredSum += t * t;
+            rightSquaredSum -= t * t;
         }
-        updateLoss(rightBeg, batchEnd);
+        updateImpurity(rightBeg, batchEnd);
         rightBeg = batchEnd;
         return true;
     }
 
     @Override
-    public double loss() {
-        return leftLoss + rightLoss;
+    public double impurity() {
+        return (leftNum * leftImpurity + rightNum * rightImpurity) / (leftNum + rightNum);
     }
 
-    protected abstract void updateLoss(int beg, int end);
+    protected abstract void updateImpurity(int beg, int end);
 }

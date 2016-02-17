@@ -33,15 +33,13 @@ public class SortSplitter extends AbstractSplitter {
             // thread-safe
             Collections.sort(instances, featureComparators.get(i));
             double lastLoss = criterion.reset(instances);
-            int firstRightIdx = 0;
             while (criterion.moveLeft(1)) {
-                firstRightIdx++;
-                if (firstRightIdx >= minNum || instances.size()-firstRightIdx >= minNum) {
-                    double curLoss = criterion.loss();
+                if (criterion.rightBegIdx() >= minNum && instances.size()-criterion.rightBegIdx() >= minNum) {
+                    double curLoss = criterion.impurity();
                     if (lastLoss - curLoss > greatestImprovement) {
                         greatestImprovement = lastLoss - curLoss;
                         bestSplitFeatureIdx = i;
-                        bestSplitInstanceIdx = firstRightIdx;
+                        bestSplitInstanceIdx = criterion.rightBegIdx();
                     }
                 }
             }

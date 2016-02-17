@@ -12,16 +12,16 @@ public class MseCriterion extends AbstractAdditiveCriterion {
     }
 
     @Override
-    protected void updateLoss(int beg, int end) {
+    protected void updateImpurity(int beg, int end) {
         if (leftNum == 0) {
-            leftLoss = 0;
+            leftImpurity = 0;
         } else {
-            leftLoss = leftSquaredSum / leftNum - (leftSum / leftNum) * (leftSum / leftNum);
+            leftImpurity = leftSquaredSum / leftNum - (leftSum / leftNum) * (leftSum / leftNum);
         }
         if (rightNum == 0) {
-            rightLoss = 0;
+            rightImpurity = 0;
         } else {
-            rightLoss = rightSquaredSum / rightNum - (rightSum / rightNum) * (rightSum / rightNum);
+            rightImpurity = rightSquaredSum / rightNum - (rightSum / rightNum) * (rightSum / rightNum);
         }
     }
 }
