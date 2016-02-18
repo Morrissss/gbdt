@@ -20,7 +20,7 @@ public class GbdtTest {
         FeatureIndex featureIndex = p.first;
         List<Instance> samples = p.second;
 
-        GbdtClassifier model = new GbdtClassifier(new GbdtParamsBuilder(featureIndex).setTreeNum(20)
+        GbdtClassifier model = new GbdtClassifier(new GbdtParamsBuilder(featureIndex).setTreeNum(5)
                                                                                      .setDepth(3)
                                                                                      .setLeafMinNum(5)
                                                                                      .setLearningRate(0.2));

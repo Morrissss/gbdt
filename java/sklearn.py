@@ -6,7 +6,7 @@ x = data[['distance', 'is_shop_online', 'is_deal_shop', 'has_pic', 'star', 'scor
 y = data['clicked']
 
 from sklearn.ensemble import GradientBoostingClassifier
-gbdt = GradientBoostingClassifier(n_estimators=20, max_depth=2, min_samples_leaf=5, learning_rate=0.2)
+gbdt = GradientBoostingClassifier(n_estimators=5, max_depth=2, min_samples_leaf=5, learning_rate=0.2)
 gbdt.fit(x, y)
 
 gbdt.init_.predict(x.ix[0])
