@@ -88,7 +88,7 @@ public class GbdtParams {
 
         public GbdtParamsBuilder(FeatureIndex featureIndex) {
             this.featureIndex = featureIndex;
-            maxDepth = 3;
+            maxDepth = 2;
             leafMinNum = 5;
             treeNum = 20;
             threadNum = 4;
@@ -99,9 +99,6 @@ public class GbdtParams {
         }
 
         public GbdtParamsBuilder setDepth(int maxDepth) {
-            if (maxDepth > 10) {
-                throw new IllegalArgumentException("maxDepth should less than 11");
-            }
             this.maxDepth = maxDepth;
             return this;
         }

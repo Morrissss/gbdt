@@ -27,7 +27,7 @@ public class GbdtClassifier implements Model {
             tree.fit(samples);
             calcSampleEstimates(samples, tree);
             forest.add(tree);
-            System.out.println("Tree " + forest.size() + " built");
+            System.out.println("Tree " + (forest.size()-1) + ": " + tree);
         }
     }
 

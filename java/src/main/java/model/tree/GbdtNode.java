@@ -1,5 +1,7 @@
 package model.tree;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.annotation.JSONField;
 import instance.Instance;
 import utils.Pair;
 
@@ -11,12 +13,19 @@ public class GbdtNode {
         this.includedInstances = trainSet;
     }
 
+    @JSONField(serialize = false)
     public int featureIdx;
+    @JSONField(ordinal = 0)
     public String featureKey;
+    @JSONField(ordinal = 1)
     public double threshold;
+    @JSONField(ordinal = 2)
     public double value;
-    public GbdtNode lessEqual, greater;
-
+    @JSONField(ordinal = 3)
+    public GbdtNode lessEqual;
+    @JSONField(ordinal = 4)
+    public GbdtNode greater;
+    @JSONField(serialize = false)
     public List<Instance> includedInstances;
 
     public boolean isLeaf() {
@@ -39,17 +48,6 @@ public class GbdtNode {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("GbdtNode{");
-        sb.append("size=").append(includedInstances.size());
-        if (!isLeaf()) {
-            sb.append(", featureKey=").append(featureKey);
-            sb.append(", threshold=").append(threshold);
-            sb.append(", lessEqual=").append(lessEqual);
-            sb.append(", greater=").append(greater);
-        } else {
-            sb.append(", value=").append(value);
-        }
-        sb.append('}');
-        return sb.toString();
+        return JSON.toJSONString(this, true);
     }
 }

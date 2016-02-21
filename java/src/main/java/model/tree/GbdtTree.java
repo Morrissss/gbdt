@@ -3,9 +3,6 @@ package model.tree;
 import instance.Instance;
 import model.GbdtParams;
 import model.Model;
-import splitter.SortSplitter;
-import splitter.Splitter;
-import splitter.SplitterFactory;
 import utils.Pair;
 
 import java.util.List;
@@ -31,12 +28,11 @@ public class GbdtTree implements Model {
         params.getCriterion().reset(samples);
         ExecutorService executor = Executors.newFixedThreadPool(params.getThreadNum());
         AtomicInteger threadNum = new AtomicInteger(1);
-        executor.submit(new ThreadTrainer(executor, root, 1, threadNum));
+        executor.submit(new ThreadTrainer(executor, root, 0, threadNum));
         while (threadNum.get() != 0) {
             Thread.sleep(1000);
         }
         executor.shutdownNow();
-        System.out.println(root);
     }
 
     @Override
@@ -49,6 +45,11 @@ public class GbdtTree implements Model {
             path = nextNodePath.second;
         }
         return cur.value;
+    }
+
+    @Override
+    public String toString() {
+        return root.toString();
     }
 
     private class ThreadTrainer implements Runnable {
@@ -64,7 +65,7 @@ public class GbdtTree implements Model {
         private final AtomicInteger threadNum;
         @Override
         public void run() {
-            if (depth+1 <= params.getMaxDepth() && split(node)) {
+            if (depth+1 <= params.getMaxDepth() && params.getSplitter().split(params, node)) {
                 threadNum.addAndGet(1);
                 executor.submit(new ThreadTrainer(executor, node.greater, depth+1, threadNum));
                 threadNum.addAndGet(1);
@@ -76,9 +77,4 @@ public class GbdtTree implements Model {
         }
     }
 
-    private boolean split(GbdtNode node) {
-        Splitter splitter = params.getSplitter();
-        splitter.init(params, node);
-        return splitter.split();
-    }
 }
