@@ -20,10 +20,9 @@ public class GbdtClassifier implements Model {
     @Override
     public void fit(List<Instance> samples) throws Exception {
         initSampleEstimates(samples);
-        forest = new ArrayList<>(params.treeNum);
-        for (int n = 0; n < params.treeNum; n++) {
+        forest = new ArrayList<>(params.getTreeNum());
+        for (int n = 0; n < params.getTreeNum(); n++) {
             calcSampleTargets(samples);
-//            System.out.println(samples);
             GbdtTree tree = new GbdtTree(params);
             tree.fit(samples);
             calcSampleEstimates(samples, tree);
@@ -36,13 +35,13 @@ public class GbdtClassifier implements Model {
     public double predict(Instance sample) {
         double estimate = initEstimate;
         for (GbdtTree tree : forest) {
-            estimate += params.learningRate * tree.predict(sample);
+            estimate += params.getLearningRate() * tree.predict(sample);
         }
-        return params.loss.estimateToProb(estimate);
+        return params.getLoss().estimateToProb(estimate);
     }
 
     private void initSampleEstimates(List<Instance> samples) {
-        initEstimate = params.loss.initEstimate(samples);
+        initEstimate = params.getLoss().initEstimate(samples);
         for (Instance sample : samples) {
             sample.estimate = initEstimate;
         }
@@ -50,13 +49,13 @@ public class GbdtClassifier implements Model {
 
     private void calcSampleTargets(List<Instance> samples) {
         for (Instance sample : samples) {
-            sample.target = params.loss.instanceNegGradient(sample.estimate, sample.label);
+            sample.target = params.getLoss().instanceNegGradient(sample.estimate, sample.label);
         }
     }
 
     private void calcSampleEstimates(List<Instance> samples, GbdtTree tree) {
         for (Instance sample : samples) {
-            sample.estimate += params.learningRate * tree.predict(sample);
+            sample.estimate += params.getLearningRate() * tree.predict(sample);
         }
     }
 }

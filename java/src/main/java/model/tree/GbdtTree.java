@@ -5,6 +5,7 @@ import model.GbdtParams;
 import model.Model;
 import splitter.SortSplitter;
 import splitter.Splitter;
+import splitter.SplitterFactory;
 import utils.Pair;
 
 import java.util.List;
@@ -24,11 +25,11 @@ public class GbdtTree implements Model {
     @Override
     public void fit(List<Instance> samples) throws Exception {
         for (Instance sample : samples) {
-            sample.target = params.loss.instanceNegGradient(sample.estimate, sample.label);
+            sample.target = params.getLoss().instanceNegGradient(sample.estimate, sample.label);
         }
         root = new GbdtNode(samples);
-        params.criterion.reset(samples);
-        ExecutorService executor = Executors.newFixedThreadPool(params.threadNum);
+        params.getCriterion().reset(samples);
+        ExecutorService executor = Executors.newFixedThreadPool(params.getThreadNum());
         AtomicInteger threadNum = new AtomicInteger(1);
         executor.submit(new ThreadTrainer(executor, root, 1, threadNum));
         while (threadNum.get() != 0) {
@@ -63,20 +64,21 @@ public class GbdtTree implements Model {
         private final AtomicInteger threadNum;
         @Override
         public void run() {
-            if (depth+1 <= params.maxDepth && split(node)) {
+            if (depth+1 <= params.getMaxDepth() && split(node)) {
                 threadNum.addAndGet(1);
                 executor.submit(new ThreadTrainer(executor, node.greater, depth+1, threadNum));
                 threadNum.addAndGet(1);
                 executor.submit(new ThreadTrainer(executor, node.lessEqual, depth+1, threadNum));
             } else {
-                node.value = params.loss.optimalEstimate(node.includedInstances);
+                node.value = params.getLoss().optimalEstimate(node.includedInstances);
             }
             threadNum.decrementAndGet();
         }
     }
 
     private boolean split(GbdtNode node) {
-        Splitter splitter = new SortSplitter(node, params.criterion, params.featureIndex, params.leafMinNum);
+        Splitter splitter = params.getSplitter();
+        splitter.init(params, node);
         return splitter.split();
     }
 }

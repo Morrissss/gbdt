@@ -1,27 +1,63 @@
 package model;
 
 import criterion.CriterionFactory;
-import criterion.MseCriterion;
 import criterion.SplitCriterion;
 import instance.FeatureIndex;
-import loss.LogLoss;
 import loss.Loss;
 import loss.LossFactory;
+import splitter.Splitter;
+import splitter.SplitterFactory;
 
 public class GbdtParams {
 
-    public final FeatureIndex featureIndex;
-    public final int maxDepth;
-    public final int leafMinNum;
-    public final int treeNum;
-    public final int threadNum;
-    public final String splitter;
-    public final SplitCriterion criterion;
-    public final Loss loss;
-    public final double learningRate;
+    public FeatureIndex getFeatureIndex() {
+        return featureIndex;
+    }
+
+    public int getMaxDepth() {
+        return maxDepth;
+    }
+
+    public int getLeafMinNum() {
+        return leafMinNum;
+    }
+
+    public int getTreeNum() {
+        return treeNum;
+    }
+
+    public int getThreadNum() {
+        return threadNum;
+    }
+
+    public Splitter getSplitter() {
+        return SplitterFactory.fetchSplitter(splitter);
+    }
+
+    public SplitCriterion getCriterion() {
+        return CriterionFactory.fetchCriterion(criterion);
+    }
+
+    public Loss getLoss() {
+        return LossFactory.fetchLoss(loss);
+    }
+
+    public double getLearningRate() {
+        return learningRate;
+    }
+
+    private final FeatureIndex featureIndex;
+    private final int maxDepth;
+    private final int leafMinNum;
+    private final int treeNum;
+    private final int threadNum;
+    private final String splitter;
+    private final String criterion;
+    private final String loss;
+    private final double learningRate;
 
     public GbdtParams(FeatureIndex featureIndex, int maxDepth, int leafMinNum, int treeNum, int threadNum,
-                      String splitter, SplitCriterion criterion, Loss loss, double learningRate) {
+                      String splitter, String criterion, String loss, double learningRate) {
         this.featureIndex = featureIndex;
         this.maxDepth = maxDepth;
         this.leafMinNum = leafMinNum;
@@ -46,8 +82,8 @@ public class GbdtParams {
         private int treeNum;
         private int threadNum;
         private String splitter;
-        private SplitCriterion criterion;
-        private Loss loss;
+        private String criterion;
+        private String loss;
         private double learningRate;
 
         public GbdtParamsBuilder(FeatureIndex featureIndex) {
@@ -57,8 +93,8 @@ public class GbdtParams {
             treeNum = 20;
             threadNum = 4;
             splitter = "sort";
-            criterion = MseCriterion.getInstance();
-            loss = LogLoss.getInstance();
+            criterion = "mse";
+            loss = "log";
             learningRate = 1;
         }
 
@@ -82,7 +118,7 @@ public class GbdtParams {
             return this;
         }
         public GbdtParamsBuilder setCriterion(String name) {
-            this.criterion = CriterionFactory.getInstance().fetch(name);
+            this.criterion = name;
             return this;
         }
         public GbdtParamsBuilder setSplitter(String name) {
@@ -90,7 +126,7 @@ public class GbdtParams {
             return this;
         }
         public GbdtParamsBuilder setLoss(String name) {
-            this.loss = LossFactory.getInstance().fetch(name);
+            this.loss = name;
             return this;
         }
         public GbdtParamsBuilder setLearningRate(double learningRate) {

@@ -2,11 +2,11 @@ import pandas as pd
 import numpy as np
 
 data = pd.read_csv('/home/morris/github/gbdt/test.csv')
-x = data[['distance', 'is_shop_online', 'is_deal_shop', 'has_pic', 'star', 'score', 'shop_ctr']]
+x = data[['feature0', 'feature1', 'feature2', 'feature3', 'feature4', 'feature5', 'feature6']]
 y = data['clicked']
 
 from sklearn.ensemble import GradientBoostingClassifier
-gbdt = GradientBoostingClassifier(n_estimators=5, max_depth=2, min_samples_leaf=5, learning_rate=0.2)
+gbdt = GradientBoostingClassifier(n_estimators=5, max_depth=2, min_samples_leaf=5, learning_rate=0.5)
 gbdt.fit(x, y)
 
 gbdt.init_.predict(x.ix[0])

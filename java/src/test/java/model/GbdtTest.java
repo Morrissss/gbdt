@@ -16,16 +16,16 @@ public class GbdtTest {
     @Test
     public void testFit() throws Exception {
         Pair<FeatureIndex, List<Instance>> p =
-                new CsvReader("/home/morris/github/gbdt/test.csv", ",").read();
+                new CsvReader("/home/morris/Github/gbdt/test.csv", ",").read();
         FeatureIndex featureIndex = p.first;
         List<Instance> samples = p.second;
 
         GbdtClassifier model = new GbdtClassifier(new GbdtParamsBuilder(featureIndex).setTreeNum(5)
                                                                                      .setDepth(3)
                                                                                      .setLeafMinNum(5)
-                                                                                     .setLearningRate(0.2));
+                                                                                     .setLearningRate(0.5));
         model.fit(samples);
 
-        System.out.println(MathUtils.auc(samples, LossFactory.getInstance().fetch("log")));
+        System.out.println(MathUtils.auc(samples, LossFactory.fetchLoss("log")));
     }
 }

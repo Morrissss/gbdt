@@ -4,8 +4,8 @@ import utils.AbstractNameFactory;
 
 public class CriterionFactory extends AbstractNameFactory<SplitCriterion> {
 
-    public static CriterionFactory getInstance() {
-        return INSTANCE;
+    public static SplitCriterion fetchCriterion(String name) {
+        return INSTANCE.fetch(name);
     }
 
     private static final CriterionFactory INSTANCE = new CriterionFactory();
@@ -14,7 +14,7 @@ public class CriterionFactory extends AbstractNameFactory<SplitCriterion> {
     }
 
     @Override
-    public SplitCriterion fetch(String name) throws IllegalArgumentException {
+    protected SplitCriterion fetch(String name) throws IllegalArgumentException {
         if ("mse".equals(name)) {
             return MseCriterion.getInstance();
         } else {

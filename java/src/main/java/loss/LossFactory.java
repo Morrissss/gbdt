@@ -4,8 +4,8 @@ import utils.AbstractNameFactory;
 
 public class LossFactory extends AbstractNameFactory<Loss> {
 
-    public static LossFactory getInstance() {
-        return INSTANCE;
+    public static Loss fetchLoss(String name) {
+        return INSTANCE.fetch(name);
     }
 
     private static final LossFactory INSTANCE = new LossFactory();
@@ -14,7 +14,7 @@ public class LossFactory extends AbstractNameFactory<Loss> {
     }
 
     @Override
-    public Loss fetch(String name) throws IllegalArgumentException {
+    protected Loss fetch(String name) throws IllegalArgumentException {
         if ("exp".equals(name)) {
             return ExponentialLoss.getInstance();
         } else if ("log".equals(name)) {

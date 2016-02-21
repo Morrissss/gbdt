@@ -3,11 +3,10 @@ package criterion;
 public class MseCriterion extends AbstractAdditiveCriterion {
 
     public static SplitCriterion getInstance() {
-        return INSTANCE;
+        return new MseCriterion();
     }
 
-    private static final SplitCriterion INSTANCE = new MseCriterion();
-    protected MseCriterion() {
+    private MseCriterion() {
         super();
     }
 

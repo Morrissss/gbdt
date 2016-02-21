@@ -6,5 +6,5 @@ public abstract class AbstractNameFactory<T> {
         // empty;
     }
 
-    public abstract T fetch(String name) throws IllegalArgumentException;
+    protected abstract T fetch(String name) throws IllegalArgumentException;
 }

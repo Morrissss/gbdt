@@ -2,15 +2,21 @@ package splitter;
 
 import criterion.SplitCriterion;
 import instance.FeatureIndex;
+import model.GbdtParams;
 import model.tree.GbdtNode;
 
 public abstract class AbstractSplitter implements Splitter {
 
-    protected AbstractSplitter(GbdtNode node, SplitCriterion criterion, FeatureIndex featureIndex, int minNum) {
+    protected AbstractSplitter() {
+        // empty
+    }
+
+    @Override
+    public void init(GbdtParams params, GbdtNode node) {
         this.node = node;
-        this.criterion = criterion;
-        this.featureIndex = featureIndex;
-        this.minNum = minNum;
+        this.criterion = params.getCriterion();
+        this.featureIndex = params.getFeatureIndex();
+        this.minNum = params.getLeafMinNum();
     }
 
     protected GbdtNode node;

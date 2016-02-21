@@ -1,8 +1,7 @@
 package splitter;
 
-import criterion.SplitCriterion;
-import instance.FeatureIndex;
 import instance.Instance;
+import model.GbdtParams;
 import model.tree.GbdtNode;
 
 import java.util.ArrayList;
@@ -12,8 +11,17 @@ import java.util.List;
 
 public class SortSplitter extends AbstractSplitter {
 
-    public SortSplitter(GbdtNode node, SplitCriterion criterion, FeatureIndex featureIndex, int minNum) {
-        super(node, criterion, featureIndex, minNum);
+    public static Splitter getInstance() {
+        return new SortSplitter();
+    }
+
+    private SortSplitter() {
+        // empty
+    }
+
+    @Override
+    public void init(GbdtParams params, GbdtNode node) {
+        super.init(params, node);
         featureComparators = new ArrayList<>(featureIndex.size());
         for (int i = 0; i < featureIndex.size(); i++) {
             final int idx = i;
