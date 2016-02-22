@@ -27,10 +27,9 @@ public class GbdtTree implements Model {
         root = new GbdtNode(samples);
         params.getCriterion().reset(samples);
         ExecutorService executor = Executors.newFixedThreadPool(params.getThreadNum());
-        AtomicInteger threadNum = new AtomicInteger(1);
-        executor.submit(new ThreadTrainer(executor, root, 0, threadNum));
-        while (threadNum.get() != 0) {
-            Thread.sleep(1000);
+        executor.submit(new ThreadTrainer(executor, root));
+        synchronized (executor) {
+            executor.wait();
         }
         executor.shutdownNow();
     }
@@ -53,7 +52,13 @@ public class GbdtTree implements Model {
     }
 
     private class ThreadTrainer implements Runnable {
-        ThreadTrainer(ExecutorService executor, GbdtNode node, int depth, AtomicInteger threadNum) {
+        ThreadTrainer(ExecutorService executor, GbdtNode node) {
+            this.executor = executor;
+            this.node = node;
+            this.depth = 0;
+            this.threadNum = new AtomicInteger(1);
+        }
+        private ThreadTrainer(ExecutorService executor, GbdtNode node, int depth, AtomicInteger threadNum) {
             this.executor = executor;
             this.node = node;
             this.depth = depth;
@@ -73,7 +78,11 @@ public class GbdtTree implements Model {
             } else {
                 node.value = params.getLoss().optimalEstimate(node.includedInstances);
             }
-            threadNum.decrementAndGet();
+            if (threadNum.decrementAndGet() ==0) {
+                synchronized (executor) {
+                    executor.notifyAll();
+                }
+            }
         }
     }
 
