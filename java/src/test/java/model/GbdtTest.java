@@ -15,13 +15,12 @@ public class GbdtTest {
 
     @Test
     public void testFit() throws Exception {
-        Pair<FeatureIndex, List<Instance>> p =
-                new CsvReader("/home/morris/github/gbdt/test.csv", ",").read();
+        Pair<FeatureIndex, List<Instance>> p = new CsvReader("/home/morris/github/gbdt/test.csv", ",").read();
         FeatureIndex featureIndex = p.first;
         List<Instance> samples = p.second;
 
         GbdtClassifier model = new GbdtClassifier(new GbdtParamsBuilder(featureIndex).setTreeNum(5)
-                                                                                     .setDepth(3)
+                                                                                     .setDepth(2)
                                                                                      .setLeafMinNum(5)
                                                                                      .setLearningRate(0.5));
         model.fit(samples);

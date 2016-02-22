@@ -41,7 +41,7 @@ public abstract class AbstractAdditiveCriterion implements SplitCriterion {
             rightSum += t;
             rightSquaredSum += t * t;
         }
-        updateImpurity(-1, -1);
+        updateImpurity();
         return impurity();
     }
 
@@ -65,7 +65,7 @@ public abstract class AbstractAdditiveCriterion implements SplitCriterion {
             leftSquaredSum += t * t;
             rightSquaredSum -= t * t;
         }
-        updateImpurity(rightBeg, batchEnd);
+        updateImpurity();
         rightBeg = batchEnd;
         return true;
     }
@@ -75,5 +75,15 @@ public abstract class AbstractAdditiveCriterion implements SplitCriterion {
         return (leftNum * leftImpurity + rightNum * rightImpurity) / (leftNum + rightNum);
     }
 
-    protected abstract void updateImpurity(int beg, int end);
+    @Override
+    public int leftSize() {
+        return leftNum;
+    }
+
+    @Override
+    public int rightSize() {
+        return rightNum;
+    }
+
+    protected abstract void updateImpurity();
 }

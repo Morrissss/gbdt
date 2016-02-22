@@ -17,6 +17,8 @@ public class SplitterFactory extends AbstractNameFactory<Splitter> {
     protected Splitter fetch(String name) throws IllegalArgumentException {
         if ("sort".equals(name)) {
             return SortSplitter.getInstance();
+        } else if ("random".equals(name)) {
+            return RandomSplitter.getInstance();
         } else {
             throw new IllegalArgumentException("Nonexistent splitter");
         }
