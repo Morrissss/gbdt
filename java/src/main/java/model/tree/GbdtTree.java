@@ -71,8 +71,6 @@ public class GbdtTree implements Model {
         @Override
         public void run() {
             if (depth+1 <= params.getMaxDepth() && params.getSplitter().split(params, node)) {
-                System.out.println(depth + ": " + node.featureKey + "@" + node.threshold);
-                System.out.flush();
                 threadNum.addAndGet(1);
                 executor.submit(new ThreadTrainer(executor, node.greater, depth+1, threadNum));
                 threadNum.addAndGet(1);
