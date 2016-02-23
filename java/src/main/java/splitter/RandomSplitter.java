@@ -25,7 +25,7 @@ public class RandomSplitter implements Splitter {
         greatestImprovement = 0;
     }
 
-    private static final int SAMPLE_PER_FEATURE = 100;
+    private static final int SAMPLE_PER_FEATURE = 10;
 
     private volatile int bestSplitFeatureIdx;
     private volatile double bestSplitThreshold;

@@ -2,6 +2,7 @@ package utils;
 
 import instance.Instance;
 import loss.Loss;
+import model.Model;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,11 +23,10 @@ public class MathUtils {
         return Math.log(val / (1 - val));
     }
 
-    public static double auc(List<Instance> samples, final Loss loss) {
+    public static double auc(List<Instance> samples, final Model model) {
         List<Instance> shallowCopy = new ArrayList<>(samples);
         Collections.sort(shallowCopy,
-                         (s1, s2) -> Double.compare(loss.estimateToProb(s1.estimate),
-                                                    loss.estimateToProb(s2.estimate))
+                         (s1, s2) -> Double.compare(model.predict(s1), model.predict(s2))
         );
         int truePairNum = 0;
         int falsePairNum = 0;

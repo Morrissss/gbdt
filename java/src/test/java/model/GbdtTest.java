@@ -3,7 +3,6 @@ package model;
 import instance.CsvReader;
 import instance.FeatureIndex;
 import instance.Instance;
-import loss.LossFactory;
 import model.GbdtParams.GbdtParamsBuilder;
 import org.junit.Test;
 import utils.MathUtils;
@@ -22,9 +21,10 @@ public class GbdtTest {
         GbdtClassifier model = new GbdtClassifier(new GbdtParamsBuilder(featureIndex).setTreeNum(5)
                                                                                      .setDepth(2)
                                                                                      .setLeafMinNum(5)
-                                                                                     .setLearningRate(0.5));
+                                                                                     .setLearningRate(0.5)
+                                                                                     .setSplitter("random"));
         model.fit(samples);
 
-        System.out.println(MathUtils.auc(samples, LossFactory.fetchLoss("log")));
+        System.out.println(MathUtils.auc(samples, model));
     }
 }
