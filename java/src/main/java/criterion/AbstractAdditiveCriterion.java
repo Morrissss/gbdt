@@ -46,6 +46,12 @@ public abstract class AbstractAdditiveCriterion implements SplitCriterion {
     }
 
     @Override
+    public void splitWithThreshold(int feature, double threshold) {
+        calcStatics(feature, threshold);
+        updateImpurity();
+    }
+
+    @Override
     public int rightBegIdx() {
         return rightBeg;
     }
@@ -86,4 +92,5 @@ public abstract class AbstractAdditiveCriterion implements SplitCriterion {
     }
 
     protected abstract void updateImpurity();
+    protected abstract void calcStatics(int feature, double threshold);
 }
