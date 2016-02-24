@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 
 data = pd.read_csv('/home/morris/github/gbdt/test.csv')
-x = data[['feature0', 'feature1', 'feature2', 'feature3', 'feature4', 'feature5', 'feature6']]
+features = ['feature0', 'feature1', 'feature2', 'feature3', 'feature4', 'feature5', 'feature6']
+x = data[features]
 y = data['clicked']
 
 from sklearn.ensemble import GradientBoostingClassifier
@@ -39,4 +40,6 @@ def save(model, filename, features):
         f.write(map_join(lambda x: features[x] if x>=0 else '#', tree.feature, ' ') + '\n')
         f.write(map_join(str, tree.threshold, ' ') + '\n')
         f.write(map_join(lambda x: str(x[0,0]), tree.value, ' ') + '\n')
-        f.close()
+    f.close()
+
+save(gbdt, "gbdt.out", features)

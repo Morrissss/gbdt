@@ -24,7 +24,7 @@ public class GbdtTest {
                                                                        .setDepth(2)
                                                                        .setLeafMinNum(5)
                                                                        .setLearningRate(0.5)
-                                                                       .setSplitter("sort")
+                                                                       .setSplitter("random")
         );
 
         model.fit(samples);
