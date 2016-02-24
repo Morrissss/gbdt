@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+map_join = lambda f, arr, sp: sp.join(map(f, arr))
+
 data = pd.read_csv('/home/morris/github/gbdt/test.csv')
 features = ['feature0', 'feature1', 'feature2', 'feature3', 'feature4', 'feature5', 'feature6']
 x = data[features]
@@ -14,7 +16,7 @@ gbdt.init_.predict(x.ix[0])
 
 regs = gbdt.estimators_[:, 0]
 for i, reg in enumerate(regs):
-    print("tree", i, ":")
+    print(map_join(str, ["tree", i, ":"], " "))
     for f, th, v in zip(reg.tree_.feature, reg.tree_.threshold, reg.tree_.value.flatten()):
         print(f, th, v)
 
@@ -25,7 +27,6 @@ def save(model, filename, features):
     '''\
     dump scikit-learn gbdt model to file with more readable style
     '''
-    map_join = lambda f, arr, sp: sp.join(map(f, arr))
     f = open(filename, 'w')
     f.write(' '.join(features) + '\n')
     f.write(str(gbdt._init_decision_function(np.zeros((1, len(features))))[0, 0]) + '\n')

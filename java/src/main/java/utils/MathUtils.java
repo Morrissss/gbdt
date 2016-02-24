@@ -1,7 +1,6 @@
 package utils;
 
 import instance.Instance;
-import loss.Loss;
 import model.Model;
 
 import java.util.ArrayList;

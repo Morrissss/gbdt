@@ -56,7 +56,7 @@ public class GbdtParams {
     private final String loss;
     private final double learningRate;
 
-    public GbdtParams(FeatureIndex featureIndex, int maxDepth, int leafMinNum, int treeNum, int threadNum,
+    private GbdtParams(FeatureIndex featureIndex, int maxDepth, int leafMinNum, int treeNum, int threadNum,
                       String splitter, String criterion, String loss, double learningRate) {
         this.featureIndex = featureIndex;
         this.maxDepth = maxDepth;
