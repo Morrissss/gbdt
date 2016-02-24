@@ -22,7 +22,7 @@ public class GbdtTest {
                                                                                      .setDepth(2)
                                                                                      .setLeafMinNum(5)
                                                                                      .setLearningRate(0.5)
-                                                                                     .setSplitter("random"));
+                                                                                     .setSplitter("sort"));
         model.fit(samples);
 
         System.out.println(MathUtils.auc(samples, model));
