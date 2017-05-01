@@ -9,11 +9,11 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
-public class CtrSmoothFunction implements FeatureFunction, Serializable {
+public class BayesianSmoothFunction implements FeatureFunction, Serializable {
 
-    public static final String FUNC_NAME = "SCTR";
+    public static final String FUNC_NAME = "BCTR";
 
-    public CtrSmoothFunction(String[] columns, String[] params) {
+    public BayesianSmoothFunction(String[] columns, String[] params) {
         if (columns == null || columns.length != 2) {
             throw new IllegalArgumentException();
         }
@@ -25,7 +25,7 @@ public class CtrSmoothFunction implements FeatureFunction, Serializable {
             this.denominatorSmooth = Double.parseDouble(params[1]);
             this.featureKey = FeatureKey.of(new String[]{this.numeratorColumn, this.denominatorColumn}, FUNC_NAME,
                                             new String[]{String.format("%.3f", this.numeratorSmooth),
-                                                  String.format("%.3f", this.denominatorSmooth)});
+                                                         String.format("%.3f", this.denominatorSmooth)});
             this.modelKey = ModelKey.of(this.featureKey, "");
         } else {
             throw new IllegalArgumentException(Arrays.toString(columns) + " " + Arrays.toString(params));
@@ -58,8 +58,8 @@ public class CtrSmoothFunction implements FeatureFunction, Serializable {
         return Sets.newHashSet(modelKey);
     }
 
-    public CtrSmoothFunction(String numeratorColumn, String denominatorColumn,
-                             double numeratorSmooth, double denominatorSmooth) {
+    public BayesianSmoothFunction(String numeratorColumn, String denominatorColumn,
+                                  double numeratorSmooth, double denominatorSmooth) {
         this.numeratorColumn = numeratorColumn;
         this.denominatorColumn = denominatorColumn;
         this.numeratorSmooth = numeratorSmooth;

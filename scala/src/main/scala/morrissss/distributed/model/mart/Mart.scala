@@ -2,7 +2,7 @@ package morrissss.distributed.model.mart
 
 import morrissss.base.feature.ModelKey
 import morrissss.base.util.{KeyCompPair, MathUtils}
-import morrissss.distributed.model.distributed.Model
+import morrissss.distributed.model.Model
 import morrissss.online.util.Sampler
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.LabeledPoint
