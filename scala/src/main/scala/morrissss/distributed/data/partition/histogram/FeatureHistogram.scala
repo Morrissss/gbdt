@@ -1,7 +1,7 @@
 package morrissss.distributed.data.partition.histogram
 
-import morrissss.distributed.data.feature.FeatureMeta
-import morrissss.distributed.data.master.{BinMapper, SplitInfo}
+import morrissss.distributed.data.master.{BinMapper, FeatureMeta}
+import morrissss.distributed.data.partition.SplitInfo
 
 class FeatureHistogram(private val featureMeta: FeatureMeta,
                        private val lambdaL1: Double,

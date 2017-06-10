@@ -1,15 +1,15 @@
 package morrissss.distributed.data.master
 
+import morrissss.distributed.data.partition.SplitInfo
 import morrissss.distributed.data.partition.histogram.HistogramEntry
 import morrissss.distributed.model.ModelConfig
 
-import scala.collection.Searching.{Found, InsertionPoint, search}
+import scala.collection.Searching.search
 import scala.collection.mutable.ArrayBuffer
 
 abstract class BinMapper() extends Serializable {
     val numBins: Short
     def valueToBin(value: Double): Short
-    def binToValue(bin: Short): Double
     def findOptimalSplit(entries: Array[HistogramEntry], modelConfig: ModelConfig): Option[SplitInfo]
 
     /**
@@ -30,125 +30,56 @@ abstract class BinMapper() extends Serializable {
     }
 }
 
-class DenseBinMapper(private val upperInclusive: Array[Double]) extends BinMapper {
+class NumericBinMapper(private val upperInclusive: Array[Double],
+                       val zeroIdx: Int) extends BinMapper {
     override val numBins: Short = upperInclusive.length.toShort
 
-    override def valueToBin(value: Double): Short = {
-        upperInclusive.search(value) match {
-            case Found(idx) => idx.toShort
-            case InsertionPoint(idx) => if (idx == numBins) (numBins-1).toShort else idx.toShort
-        }
-    }
-
-    override def binToValue(bin: Short): Double = upperInclusive(bin)
+    override def valueToBin(value: Double): Short = upperInclusive.search(value).insertionPoint.toShort
 
     override def findOptimalSplit(entries: Array[HistogramEntry], modelConfig: ModelConfig): Option[SplitInfo] = {
+        val sumCount = entries.map(_.count).sum
         val sumGrad = entries.map(_.sumGradients).sum
         val sumHess = entries.map(_.sumHessians).sum
+        var lteCount = entries(0).count
         var lteSumGrad = entries(0).sumGradients
         var lteSumHess = entries(0).sumHessians
+        var gtCount = sumCount - lteCount
         var gtSumGrad = sumGrad - lteSumGrad
-        var gtSumHess = sumHess - gtSumHess
+        var gtSumHess = sumHess - lteSumHess
 
         var bestSplit = 0.toShort
-
-        var bestSplitScore = leafSplitScore(lteSumGrad, lteSumHess, modelConfig) +
-                             leafSplitScore(gtSumGrad, gtSumHess, modelConfig)
+        var bestSplitScores = (leafSplitScore(lteSumGrad, lteSumHess, modelConfig),
+                               leafSplitScore(gtSumGrad, gtSumHess, modelConfig))
+        var bestSplitValues = (optimalValue(lteSumGrad, lteSumHess, modelConfig),
+                               optimalValue(gtSumGrad, gtSumHess, modelConfig))
+        var bestLeftStats = (lteCount, lteSumGrad, lteSumHess)
 
         for (i <- 1 until numBins-1) {
+            lteCount += entries(i).count
             lteSumGrad += entries(i).sumGradients
             lteSumHess += entries(i).sumHessians
+            gtCount = sumCount - lteCount
             gtSumGrad = sumGrad - lteSumGrad
             gtSumHess = sumHess - lteSumHess
-            val splitScore = leafSplitScore(lteSumGrad, lteSumHess, modelConfig) +
-                             leafSplitScore(gtSumGrad, gtSumHess, modelConfig)
-            if (splitScore > bestSplitScore) {
+            val leftScore = leafSplitScore(lteSumGrad, lteSumHess, modelConfig)
+            val rightScore = leafSplitScore(gtSumGrad, gtSumHess, modelConfig)
+            val splitScore = leftScore + rightScore
+            if (splitScore > bestSplitScores._1+bestSplitScores._2) {
                 bestSplit = i.toShort
-                bestSplitScore = splitScore
+                bestSplitScores = (leftScore, rightScore)
+                bestSplitValues = (optimalValue(lteSumGrad, lteSumHess, modelConfig),
+                                   optimalValue(gtSumGrad, gtSumHess, modelConfig))
+                bestLeftStats = (lteCount, lteSumGrad, lteSumHess)
             }
         }
 
         val leafScore = leafSplitScore(sumGrad, sumHess, modelConfig)
-        if (bestSplitScore >= leafScore + modelConfig.minSplitGain) {
-            Some(new DenseSplitInfo(bestSplit, bestSplitScore - leafScore))
-        } else {
-            None
-        }
-    }
-}
-
-class SparseBinMapper(private val upperInclusive: Array[Double]) extends BinMapper {
-    override val numBins: Short = (upperInclusive.length + 1).toShort
-
-    private val zeroBin = upperInclusive.length.toShort
-
-    override def valueToBin(value: Double): Short = {
-        if (value == 0.0) {
-            zeroBin
-        } else {
-            upperInclusive.search(value) match {
-                case Found(idx) => idx.toShort
-                case InsertionPoint(idx) => if (idx == zeroBin) (zeroBin-1).toShort else idx.toShort
-            }
-        }
-    }
-
-    override def binToValue(bin: Short): Double = {
-        if (bin == zeroBin) {
-            0.0
-        } else {
-            upperInclusive(bin)
-        }
-    }
-
-    override def findOptimalSplit(entries: Array[HistogramEntry], modelConfig: ModelConfig): Option[SplitInfo] = {
-        val zeroGrad = entries(zeroBin).sumGradients
-        val zeroHess = entries(zeroBin).sumHessians
-        val sumGrad = entries.map(_.sumGradients).sum - zeroGrad
-        val sumHess = entries.map(_.sumHessians).sum - zeroHess
-
-        var lteSumGrad = 0
-        var lteSumHess = 0
-        var gtSumGrad = sumGrad
-        var gtSumHess = sumHess
-
-        var bestZeroToLte = true
-        var bestSplit: Short = -1
-        var bestSplitScore = leafSplitScore(lteSumGrad+zeroGrad, lteSumHess+zeroHess, modelConfig) +
-                             leafSplitScore(gtSumGrad, gtSumHess, modelConfig)
-
-        for (i <- 0 until zeroBin-1) {
-            lteSumGrad += entries(i).sumGradients
-            lteSumHess += entries(i).sumHessians
-            gtSumGrad = sumGrad - lteSumGrad
-            gtSumHess = sumHess - lteSumHess
-            val zeroToLeftSplitScore = leafSplitScore(lteSumGrad+zeroGrad, lteSumHess+zeroHess, modelConfig) +
-                                       leafSplitScore(gtSumGrad, gtSumHess, modelConfig)
-            if (zeroToLeftSplitScore > bestSplitScore) {
-                bestZeroToLte = true
-                bestSplit = i.toShort
-                bestSplitScore = zeroToLeftSplitScore
-            }
-            val zeroToRightSplitScore = leafSplitScore(lteSumGrad, lteSumHess, modelConfig) +
-                                        leafSplitScore(gtSumGrad+zeroGrad, gtSumHess+zeroHess, modelConfig)
-            if (zeroToRightSplitScore > bestSplitScore) {
-                bestZeroToLte = false
-                bestSplit = i.toShort
-                bestSplitScore = zeroToRightSplitScore
-            }
-        }
-
-        val splitScore = leafSplitScore(lteSumGrad, lteSumHess, modelConfig) +
-                         leafSplitScore(gtSumGrad+zeroGrad, gtSumHess+zeroHess, modelConfig)
-        if (splitScore > bestSplitScore) {
-            bestZeroToLte = false
-            bestSplit = (zeroBin-1).toShort
-            bestSplitScore = splitScore
-        }
-
-        val leafScore = leafSplitScore(sumGrad, sumHess, modelConfig)
-        if (bestSplitScore >= leafScore + modelConfig.minSplitGain) {
-            Some(new SparseSplitInfo(bestSplit, bestZeroToLte, bestSplitScore - leafScore))
+        if (bestSplitScores._1+bestSplitScores._2 >= leafScore + modelConfig.minSplitGain) {
+            Some(new SplitInfo(bestSplit, bestSplitScores._1 + bestSplitScores._2 - leafScore,
+                               bestSplitValues._1, bestSplitValues._2,
+                               bestLeftStats._1, sumCount-bestLeftStats._1,
+                               bestLeftStats._2, sumGrad-bestLeftStats._2,
+                               bestLeftStats._3, sumHess-bestLeftStats._3))
         } else {
             None
         }
@@ -158,60 +89,156 @@ class SparseBinMapper(private val upperInclusive: Array[Double]) extends BinMapp
 // 0 -> numBins-1
 class CategoricalBinMapper(override val numBins: Short) extends BinMapper {
     override def valueToBin(value: Double): Short = value.toShort
-    override def binToValue(bin: Short): Double = bin.toDouble
 
     override def findOptimalSplit(entries: Array[HistogramEntry], modelConfig: ModelConfig): Option[SplitInfo] = {
+        val sumCount = entries.map(_.count).sum
+        val sumGrad = entries.map(_.sumGradients).sum
+        val sumHess = entries.map(_.sumHessians).sum
 
+        var lteSumGrad = entries(0).sumGradients
+        var lteSumHess = entries(0).sumHessians
+
+        var bestSplit = 0.toShort
+        var bestSplitScores = (leafSplitScore(lteSumGrad, lteSumHess, modelConfig),
+                               leafSplitScore(sumGrad - lteSumGrad, sumHess - lteSumHess, modelConfig))
+        var bestSplitValues = (optimalValue(lteSumGrad, lteSumHess, modelConfig),
+                               optimalValue(sumGrad - lteSumGrad, sumHess - lteSumHess, modelConfig))
+
+        for (i <- 1 until numBins-1) {
+            lteSumGrad = entries(i).sumGradients
+            lteSumHess = entries(i).sumHessians
+            val leftScore = leafSplitScore(lteSumGrad, lteSumHess, modelConfig)
+            val rightScore = leafSplitScore(sumGrad-lteSumGrad, sumHess-lteSumHess, modelConfig)
+            val splitScore = leftScore + rightScore
+            if (splitScore > bestSplitScores._1+bestSplitScores._2) {
+                bestSplit = i.toShort
+                bestSplitScores = (leftScore, rightScore)
+                bestSplitValues = (optimalValue(lteSumGrad, lteSumHess, modelConfig),
+                                   optimalValue(sumGrad - lteSumGrad, sumHess - lteSumHess, modelConfig))
+            }
+        }
+
+        val leafScore = leafSplitScore(sumGrad, sumHess, modelConfig)
+        if (bestSplitScores._1+bestSplitScores._2 >= leafScore + modelConfig.minSplitGain) {
+            Some(new SplitInfo(bestSplit, bestSplitScores._1 + bestSplitScores._2 - leafScore,
+                               bestSplitValues._1, bestSplitValues._2,
+                               entries(bestSplit).count, sumCount-entries(bestSplit).count,
+                               entries(bestSplit).sumGradients, sumGrad-entries(bestSplit).sumGradients,
+                               entries(bestSplit).sumHessians, sumHess-entries(bestSplit).sumHessians))
+        } else {
+            None
+        }
     }
 }
 
 object BinMapper {
-    def constructDense(values: Array[Double], maxBin: Short): BinMapper = {
-        val sorted: Array[Double] = values.sorted
-        new DenseBinMapper(constructNumeric(sorted, maxBin))
-    }
+    def constructNumeric(values: Array[Double], maxBin: Short): BinMapper = {
+        val sorted = values.sorted
+        val leftValues = new ArrayBuffer[Double]
+        val leftCounts = new ArrayBuffer[Int]
+        val rightValues = new ArrayBuffer[Double]
+        val rightCounts = new ArrayBuffer[Int]
+        var zeroCount = 0
 
-    def constructSparse(nonZeroValues: Array[Double], maxBin: Short): BinMapper = {
-        val sorted = nonZeroValues.sorted
-        // one extra for 0
-        val arr = constructNumeric(sorted, (maxBin - 1).toShort)
-        new SparseBinMapper(arr)
-    }
-
-    private[bin] def constructNumeric(sorted: Array[Double], maxBin: Short): Array[Double] = {
-        val distinctValues = ArrayBuffer[Double](sorted(0))
-        val valueCount = ArrayBuffer[Int](1)
-        var lastValue: Double = null
-        sorted.drop(1).foreach(value => {
-            if (value != lastValue) {
-                distinctValues += value
-            }
-            valueCount(valueCount.length-1) += 1
-        })
-        // save one extra bin for (max, +inf)
-        if (distinctValues.length < maxBin) {
-            distinctValues.sliding(2).map(t => (t(0)+t(1))/2).toArray
-        } else {
-            // stride between splits
-            val stride = sorted.length.toDouble / (maxBin-1)
-            // iterate `valueCount` to find splits
-            val splitsBuilder = Array.newBuilder[Double]
-            var index = 1
-            var lastSum = valueCount(0)
-            var targetSum = stride
-            for (index <- 1 until distinctValues.length) {
-                val currSum = lastSum + valueCount(index)
-                val previousGap = math.abs(lastSum - targetSum)
-                val currentGap = math.abs(currSum - targetSum)
-                if (previousGap < currentGap) {
-                    splitsBuilder += (distinctValues(index - 1) + distinctValues(index)) / 2
-                    targetSum += stride
+        var curCount = 0
+        for (value <- sorted) {
+            if (value < -1e-6) {
+                if (leftValues.isEmpty || leftValues.last < value) {
+                    leftValues += value
+                    leftCounts += curCount
+                    curCount = 1
+                } else {
+                    curCount += 1
                 }
-                lastSum = currSum
+            } else if (value > 1e-6) {
+                if (rightValues.isEmpty || rightValues.last < value) {
+                    rightValues += value
+                    rightCounts += curCount
+                    curCount = 1
+                } else {
+                    curCount += 1
+                }
+            } else {
+                zeroCount += 1
             }
-            splitsBuilder.result
         }
+        val leftTotal = leftCounts.sum.toDouble
+        val leftMaxBin = (leftTotal / (values.length - zeroCount) * (maxBin-1)).toShort
+        val upperBounds = calcUpperBounds(leftValues.toArray, leftCounts.toArray, leftMaxBin, 0)
+        val zeroIdx = if (zeroCount != 0) {
+            val result = upperBounds.length
+            upperBounds += -1e-6
+            upperBounds += 1e-6
+            result
+        } else {
+            -1
+        }
+        upperBounds ++= calcUpperBounds(rightValues.toArray, rightCounts.toArray, maxBin-1-leftMaxBin, 0)
+        new NumericBinMapper(upperBounds.toArray, zeroIdx)
     }
 
     def constructCategorical(maxCategory: Short): BinMapper = new CategoricalBinMapper(maxCategory)
+
+    private[BinMapper] def calcUpperBounds(values: Array[Double], counts: Array[Int],
+                                           expectedMaxBin: Int, minBinSize: Int): ArrayBuffer[Double] = {
+        val total = counts.sum
+        val thresholds = ArrayBuffer[Double]()
+        if (values.length <= expectedMaxBin) {
+            var curBinSize = 0
+            for (i <- 0 until values.length-1) {
+                val curValue = values(i)
+                val curCount = counts(i)
+                curBinSize += curCount
+                if (curBinSize >= minBinSize) {
+                    thresholds += (curValue + values(i+1)) / 2
+                    curBinSize = 0
+                }
+            }
+            thresholds += Double.PositiveInfinity
+        } else {
+            val maxBin = math.max(1, math.min(expectedMaxBin, total / minBinSize))
+            var expectBinSize = total.toDouble / maxBin
+
+            var restBinCount = maxBin
+            var restSampleCount = total
+            val isHighFreq = for (i <- 0 until counts.length) yield {
+                val count = counts(i)
+                if (count >= expectBinSize) {
+                    restBinCount -= 1
+                    restSampleCount -= count
+                    true
+                } else {
+                    false
+                }
+            }
+            expectBinSize = restSampleCount.toDouble / restBinCount
+
+            val lowerBounds = ArrayBuffer[Double]()
+            val upperBounds = ArrayBuffer[Double]()
+            lowerBounds += values(0)
+            var curBinSize = 0
+            for (i <- 0 until values.length-1) {
+                val count = counts(i)
+                if (!isHighFreq(i)) {
+                    restSampleCount -= count
+                }
+                curBinSize += count
+                // need a new bin
+                if (isHighFreq(i) || curBinSize >= expectBinSize ||
+                    (isHighFreq(i+1) && curBinSize >= math.max(1.0, expectBinSize * 0.5))) {
+                    upperBounds += values(i)
+                    lowerBounds += values(i+1)
+                    curBinSize = 0
+                    if (!isHighFreq(i)) {
+                        restBinCount -= 1
+                        expectBinSize = restSampleCount / restBinCount.toDouble
+                    }
+                }
+            }
+            for (i <- 0 until math.min(upperBounds.length, maxBin-1)) {
+                thresholds += (upperBounds(i) + lowerBounds(i+1)) / 2.0
+            }
+        }
+        thresholds
+    }
 }

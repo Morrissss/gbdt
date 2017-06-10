@@ -4,12 +4,17 @@ import morrissss.distributed.data.partition.histogram.HistogramEntry
 
 trait Column {
 
-    def constructHistogram(binNum: Int, dataIndices: Array[Int],
+    def push(idx: Int, bin: Short): Unit
+
+    def finishLoad(): Unit = {}
+
+    def constructHistogram(leaf: Int, binNum: Int, dataIndices: Array[Int],
                            orderedGradients: Array[Float], orderedHessians: Array[Float]): Array[HistogramEntry]
 
-    def constructHistogram(binNum: Int, orderedGradients: Array[Float], orderedHessians: Array[Float]): Array[HistogramEntry]
+    def constructHistogram(leaf: Int, binNum: Int,
+                           orderedGradients: Array[Float], orderedHessians: Array[Float]): Array[HistogramEntry]
 
     // lteIndices, gtIndices
-    def spilt(minBin: Int, maxBin: Int, defaultBin: Short, threshold: Short, dataIndices: Array[Int]): (Array[Int], Array[Int])
+    def split(leaf: Int, threshold: Short, dataIndices: Array[Int]): (Array[Int], Array[Int])
 
 }
